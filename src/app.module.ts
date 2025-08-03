@@ -6,9 +6,10 @@ import { typeOrmConfig } from "@config";
 import { UserModule } from "./modules/user/user.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { CacheModule } from "./core/modules/cache";
+import { TweetModule } from "./modules/tweet/tweet.module";
 
 @Module({
-    imports: [TypeOrmModule.forRoot(typeOrmConfig), CacheModule, AuthModule, UserModule],
+    imports: [TypeOrmModule.forRoot(typeOrmConfig), CacheModule, AuthModule, UserModule, TweetModule],
     controllers: [AppController],
     providers: [AppService],
 })

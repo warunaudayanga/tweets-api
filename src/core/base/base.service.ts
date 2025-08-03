@@ -1,8 +1,7 @@
 // noinspection JSUnusedGlobalSymbols,ExceptionCaughtLocallyJS
 
 import { BaseRepository } from "./base.repository";
-import { DeepPartial } from "typeorm";
-import { FindOptionsWhere } from "typeorm/find-options/FindOptionsWhere";
+import { DeepPartial, FindManyOptions } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { BaseModel } from "./base.model";
 import { Errors, SuccessResponse } from "../responses";
@@ -10,26 +9,33 @@ import { toFirstCaseBreak } from "@hichchi/utils";
 import { HttpException } from "@nestjs/common";
 import { isQueryFailedError } from "../utils/exception.utils";
 import { TypeOrmErrorCode } from "../enums/typeorm-error-code.enum";
+import { FindAllOptions, SafeFindManyOptions, SafeFindOptions } from "../interfaces/find-options.interface";
+import { FindOneOptions } from "typeorm/find-options/FindOneOptions";
+import { EntityId } from "@types";
 
 export abstract class CrudService<Model extends BaseModel> {
     protected constructor(
         protected readonly repository: BaseRepository<Model>,
         protected entityName: string,
+        protected readonly relations?: string[],
     ) {}
 
-    async create(data: DeepPartial<Model>): Promise<Model> {
+    async create(data: DeepPartial<Model>, options: Omit<SafeFindOptions<Model>, "where"> = {}): Promise<Model> {
         try {
-            return (await this.repository.createAndGet(data))!;
+            options.relations ||= this.relations;
+
+            const { id } = await this.repository.save(data);
+            return await this.get(id, options);
         } catch (e) {
             this._handleError(e);
         }
     }
 
-    async get(id: string): Promise<Model> {
+    async get(id: EntityId, options: Omit<SafeFindOptions<Model>, "where"> = {}): Promise<Model> {
         try {
-            const entity = await this.repository.findOneBy({
-                id,
-            } as FindOptionsWhere<Model>);
+            options.relations ||= this.relations;
+
+            const entity = await this.repository.findOne({ ...options, where: { id } } as FindOneOptions<Model>);
             if (!entity) {
                 throw Errors.notFound(this.entityName);
             }
@@ -40,10 +46,16 @@ export abstract class CrudService<Model extends BaseModel> {
         }
     }
 
-    async getOneBy(where: QueryDeepPartialEntity<Model>, field?: string): Promise<Model> {
+    async getOne(options: SafeFindOptions<Model>, field?: string): Promise<Model>;
+
+    async getOne(options: SafeFindOptions<Model> & { skipThrow: true }, field?: string): Promise<Model | null>;
+
+    async getOne(options: SafeFindOptions<Model> & { skipThrow?: true }, field?: string): Promise<Model | null> {
         try {
-            let entity = await this.repository.findOneBy(where as FindOptionsWhere<Model>);
-            if (!entity) {
+            options.relations ||= this.relations;
+
+            let entity = await this.repository.findOne(options as FindOneOptions<Model>);
+            if (!entity && !options.skipThrow) {
                 throw Errors.notFound(this.entityName, field || "condition");
             }
 
@@ -53,33 +65,61 @@ export abstract class CrudService<Model extends BaseModel> {
         }
     }
 
-    async getAll(): Promise<Model[]> {
+    async getMany(options: SafeFindManyOptions<Model> = {}): Promise<Model[]> {
         try {
-            return await this.repository.find();
+            options.relations ||= this.relations;
+
+            return await this.repository.find(options as FindManyOptions<Model>);
         } catch (e) {
             this._handleError(e);
         }
     }
 
-    async update(id: string, updateData: QueryDeepPartialEntity<Model>): Promise<SuccessResponse> {
+    async getAll(options: FindAllOptions<Model> = {}): Promise<Model[]> {
+        try {
+            options.relations ||= this.relations;
+
+            return await this.repository.find(options);
+        } catch (e) {
+            this._handleError(e);
+        }
+    }
+
+    async update(
+        id: EntityId,
+        updateData: QueryDeepPartialEntity<Model>,
+        options: Omit<SafeFindOptions<Model>, "where"> = {},
+    ): Promise<Model> {
         try {
             const result = await this.repository.update(id, updateData);
             if (result.affected === 0) {
                 throw Errors.notFound(this.entityName);
             }
 
-            return new SuccessResponse(`${toFirstCaseBreak(this.entityName)} updated successfully.`);
+            return this.get(id, options);
         } catch (e) {
             this._handleError(e);
         }
     }
 
-    async delete(id: string): Promise<SuccessResponse> {
+    async delete(id: EntityId): Promise<SuccessResponse> {
         try {
             const result = await this.repository.delete(id);
             if (result.affected === 0) {
                 throw Errors.notFound(this.entityName);
             }
+
+            return new SuccessResponse(`${toFirstCaseBreak(this.entityName)} deleted successfully.`);
+        } catch (e) {
+            this._handleError(e);
+        }
+    }
+
+    async deleteOne(options: SafeFindOptions<Model>): Promise<SuccessResponse> {
+        try {
+            const entity = await this.getOne(options);
+
+            await this.repository.delete(entity.id);
 
             return new SuccessResponse(`${toFirstCaseBreak(this.entityName)} deleted successfully.`);
         } catch (e) {

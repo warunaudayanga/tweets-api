@@ -1,7 +1,8 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { BaseEntity } from "../../../core/base";
 import { User } from "../interfaces";
 import { Exclude } from "class-transformer";
+import { TweetEntity, TweetLikeEntity, TweetReplyEntity } from "../../tweet/entities";
 
 @Entity("users")
 export class UserEntity extends BaseEntity implements User {
@@ -20,4 +21,13 @@ export class UserEntity extends BaseEntity implements User {
 
     @Column({ default: false })
     emailVerified: boolean;
+
+    @OneToMany(() => TweetEntity, tweet => tweet.author)
+    tweets: TweetEntity[];
+
+    @OneToMany(() => TweetReplyEntity, tweetReply => tweetReply.author)
+    tweetReplies: TweetReplyEntity[];
+
+    @OneToMany(() => TweetLikeEntity, tweetLike => tweetLike.user)
+    tweetLikes: TweetLikeEntity[];
 }

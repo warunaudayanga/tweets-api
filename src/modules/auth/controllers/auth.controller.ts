@@ -17,34 +17,35 @@ import { CurrentUser } from "../decorators/current-user.decorator";
 import { User } from "../../user/interfaces";
 import { SignInDto } from "../dtos/sign-in.dto";
 import { RefreshTokenDto } from "../dtos/refresh-token.dto";
+import { AuthEndpoint } from "../enums/auth-endpoint.enum";
 
 @Controller(Endpoint.AUTH)
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
-    @Post("sign-up")
+    @Post(AuthEndpoint.SIGN_UP)
     signUp(@Body() dto: CreateUserDto): Promise<User> {
         return this.authService.signUp(dto);
     }
 
-    @Post("sign-in")
+    @Post(AuthEndpoint.SIGN_IN)
     @UseGuards(LocalAuthGuard)
     signIn(@CurrentUser() authUser: AuthUser, @Body() _dto: SignInDto): Promise<AuthResponse> {
         return this.authService.signIn(authUser);
     }
 
-    @Get("me")
+    @Get(AuthEndpoint.ME)
     @UseGuards(JwtAuthGuard)
     getCurrentUser(@CurrentUser() authUser: AuthUser): Promise<User> {
         return this.authService.getCurrentUser(authUser);
     }
 
-    @Post("refresh")
+    @Post(AuthEndpoint.REFRESH)
     refreshTokens(@Body() dto: RefreshTokenDto): Promise<TokenResponse> {
         return this.authService.refreshTokens(dto.refreshToken);
     }
 
-    @Post("password/change")
+    @Post(AuthEndpoint.PASSWORD_CHANGE)
     @UseGuards(JwtAuthGuard)
     changePassword(
         @CurrentUser() authUser: AuthUser,
@@ -53,32 +54,32 @@ export class AuthController {
         return this.authService.changePassword(authUser, updatePasswordDto);
     }
 
-    @Post("password/request-reset")
+    @Post(AuthEndpoint.PASSWORD_REQUEST_RESET)
     requestPasswordReset(@Body() dto: RequestResetDto): Promise<SuccessResponse> {
         return this.authService.requestPasswordReset(dto);
     }
 
-    @Post("password/verify-reset")
+    @Post(AuthEndpoint.PASSWORD_VERIFY_RESET)
     verifyResetPasswordToken(@Body() dto: ResetPasswordTokenVerifyDto): Promise<SuccessResponse> {
         return this.authService.verifyResetPasswordToken(dto);
     }
 
-    @Post("password/reset")
+    @Post(AuthEndpoint.PASSWORD_RESET)
     resetPassword(@Body() dto: ResetPasswordDto): Promise<SuccessResponse> {
         return this.authService.resetPassword(dto);
     }
 
-    @Post("email/verify")
+    @Post(AuthEndpoint.EMAIL_VERIFY)
     verifyEmail(@Body() dto: EmailVerifyDto): Promise<boolean> {
         return this.authService.verifyEmail(dto);
     }
 
-    @Post("email/resend")
+    @Post(AuthEndpoint.EMAIL_RESEND)
     resendEmailVerification(@Body() dto: ResendEmailVerifyDto): Promise<SuccessResponse> {
         return this.authService.resendEmailVerification(dto);
     }
 
-    @Post("sign-out")
+    @Post(AuthEndpoint.SIGN_OUT)
     @UseGuards(JwtAuthGuard)
     signOut(@CurrentUser() authUser: AuthUser): Promise<SuccessResponse> {
         return this.authService.signOut(authUser);

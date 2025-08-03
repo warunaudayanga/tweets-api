@@ -34,7 +34,7 @@ export class UserController {
 
     @Patch(":id")
     @UseGuards(JwtAuthGuard)
-    update(@Param("id") id: EntityId, @Body() updateUserDto: UpdateUserDto): Promise<SuccessResponse> {
+    update(@Param("id") id: EntityId, @Body() updateUserDto: UpdateUserDto): Promise<User> {
         return this.userService.update(id, updateUserDto);
     }
 

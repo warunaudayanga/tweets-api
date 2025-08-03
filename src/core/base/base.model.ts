@@ -4,5 +4,5 @@ export interface BaseModel {
     id: EntityId;
     createdAt: Date;
     updatedAt: Date;
-    deletedAt: Date;
+    deletedAt: Date | null;
 }

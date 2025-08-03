@@ -87,7 +87,7 @@ export class AuthService {
 
     async authenticate(email: string, password: string): Promise<AuthUser> {
         try {
-            const user = await this.userService.getOneBy({ email }, "email");
+            const user = await this.userService.getOne({ where: { email } }, "email");
 
             if (!AuthService.verifyHash(password, user.password)) {
                 throw Errors.invalidCredentials();
@@ -345,7 +345,7 @@ export class AuthService {
     }
 
     async resendEmailVerification(resendEmailVerifyDto: ResendEmailVerifyDto): Promise<SuccessResponse> {
-        const user = await this.userService.getOneBy({ email: resendEmailVerifyDto.email }, "email");
+        const user = await this.userService.getOne({ where: { email: resendEmailVerifyDto.email } }, "email");
 
         if (user.emailVerified) {
             throw Errors.badRequest("Email already verified");
@@ -376,7 +376,7 @@ export class AuthService {
 
     async requestPasswordReset(requestResetDto: RequestResetDto): Promise<SuccessResponse> {
         try {
-            const user = await this.userService.getOneBy({ email: requestResetDto.email }, "email");
+            const user = await this.userService.getOne({ where: { email: requestResetDto.email } }, "email");
 
             const token = AuthService.generateVerifyToken();
             const setToken = await this.tokenVerifyService.savePasswordResetToken(user.id, token);

@@ -13,5 +13,5 @@ export class BaseEntity implements BaseModel {
     updatedAt: Date;
 
     @DeleteDateColumn({ type: "timestamp", nullable: true })
-    deletedAt: Date;
+    deletedAt: Date | null;
 }
