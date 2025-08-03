@@ -23,6 +23,14 @@
     "types": [
       "node",
       "jest"
-    ]
+    ],
+    "paths": {
+      "@types": ["src/core/types"],
+      "@config": ["src/core/configs"],
+      "@constants": ["src/core/constants"],
+      "@interfaces": ["src/core/interfaces"],
+      "@filters": ["src/core/filters"],
+      "@services": ["src/core/services", "src/core/modules/cache/services"],
+    }
   }
 }

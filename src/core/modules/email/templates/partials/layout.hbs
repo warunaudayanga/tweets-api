@@ -1,0 +1,147 @@
+<!doctype html>
+<!--suppress HtmlUnknownAttribute, HtmlDeprecatedAttribute, HtmlUnknownTag, CssUnusedSymbol -->
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>Impctbldr</title>
+  <link href='https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap'
+        rel='stylesheet' type='text/css'>
+  <style>
+    * {
+      font-family: 'Montserrat', serif;
+    }
+
+    .body {
+      margin: 0;
+      padding: 0;
+      background-color: #fcfcfc;
+      font-family: 'Montserrat', serif;
+      -webkit-font-smoothing: subpixel-antialiased;
+      color: #5c5c5c;
+      font-size: 18px;
+      line-height: 1.5;
+      font-weight: 400;
+    }
+
+    p {
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+
+    strong {
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .clearfix {
+      display: block;
+    }
+
+    .wrapper {
+      margin: 0;
+      padding: 0;
+    }
+
+    .page-body {
+      background-color: #ffffff;
+      padding: 100px 70px;
+      width: 100%;
+      max-width: 850px;
+      border: 1px solid #e2e2e2;
+      margin: 80px 0 80px 0;
+      box-shadow: rgba(99, 99, 99, 0.2) 0 2px 8px 0;
+    }
+
+    .text-center {
+      text-align: left;
+    }
+
+    .header-top {
+      padding: 15px 25px;
+      display: block;
+      background-color: #000;
+    }
+
+    .title-head {
+      margin: 0;
+      color: #ffffff;
+      font-weight: 600;
+
+    }
+
+    .meta-para {
+      padding: 25px;
+    }
+
+    .signature {
+      margin-top: 50px;
+    }
+
+    hr {
+      border: 1px solid #868e92;
+    }
+
+    .app-section p {
+      float: left;
+      padding: 10px;
+    }
+
+    .m-0 {
+      margin: 0;
+    }
+
+    .pt-1 {
+      padding-top: 0.5em;
+    }
+
+    .pb-1 {
+      padding-bottom: 0.5em;
+    }
+
+    .data-table td:nth-child(2) {
+      padding-left: 20px;
+    }
+
+    .text-bold {
+      font-weight: bold;
+      font-size: 22px;
+    }
+
+  </style>
+</head>
+
+<body class="body">
+<table width="100%" height="100%" class="wrapper" cellpadding="0">
+  <tr>
+    <td>
+      <table align="center">
+        <tr>
+          <td>
+            <div class="page-body text-center clearfix">
+              <div class="header-top">
+                <p class="title-head">Impctbldr</p>
+              </div>
+              <div class="meta-para">
+
+                {{> content}}
+
+                <span class="signature">
+                  <p>
+                    Best Regards,<br>
+                    The Impctbldr Team.
+                  </p>
+                </span>
+              </div>
+              <hr>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+
+</html>

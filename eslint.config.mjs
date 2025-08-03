@@ -285,7 +285,7 @@ export default tseslint.config(
       "unicode-bom": ["error", "never"],
       "vars-on-top": "error",
       "wrap-iife": "error",
-      "wrap-regex": "error",
+      "wrap-regex": "off",
       "yield-star-spacing": "error",
       yoda: ["error", "never"],
     },
