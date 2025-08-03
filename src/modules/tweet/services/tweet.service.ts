@@ -6,7 +6,9 @@ import { EntityId } from "@types";
 import { TweetLikeService } from "./tweet-like.service";
 import { CreateTweetReplyDto } from "../dtos";
 import { TweetReplyService } from "./tweet-reply.service";
-import { SuccessResponse } from "../../../core/responses";
+import { Errors, SuccessResponse } from "../../../core/responses";
+import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
+import { SafeFindOptions } from "../../../core/interfaces/find-options.interface";
 
 @Injectable()
 export class TweetService extends CrudService<Tweet> {
@@ -22,13 +24,8 @@ export class TweetService extends CrudService<Tweet> {
         return super.getAll({ order: { createdAt: "DESC" } });
     }
 
-    async toggleLike(id: EntityId, userId: EntityId): Promise<TweetLike> {
-        const like = await this.tweetLikeService.getOne({ where: { tweetId: id, userId }, skipThrow: true });
-        if (like) {
-            await this.tweetLikeService.delete(like.id);
-            return like;
-        }
-        return this.tweetLikeService.create({ tweetId: id, userId });
+    getReplies(id: EntityId): Promise<TweetReply[]> {
+        return this.tweetReplyService.getMany({ where: { tweetId: id } });
     }
 
     createReply(id: EntityId, userId: EntityId, replyDto: CreateTweetReplyDto): Promise<TweetReply> {
@@ -39,11 +36,42 @@ export class TweetService extends CrudService<Tweet> {
         });
     }
 
-    getReplies(id: EntityId): Promise<TweetReply[]> {
-        return this.tweetReplyService.getMany({ where: { tweetId: id } });
+    async toggleLike(id: EntityId, userId: EntityId): Promise<TweetLike> {
+        const like = await this.tweetLikeService.getOne({
+            where: { tweetId: id, userId },
+            skipThrow: true,
+        });
+        if (like) {
+            await this.tweetLikeService.delete(like.id);
+            return like;
+        }
+        return this.tweetLikeService.create({ tweetId: id, userId });
     }
 
-    deleteReply(id: EntityId, replyId: EntityId): Promise<SuccessResponse> {
-        return this.tweetReplyService.deleteOne({ where: { tweetId: id, id: replyId } });
+    async updateTweet(
+        id: EntityId,
+        userId: EntityId,
+        updateData: QueryDeepPartialEntity<Tweet>,
+        options: Omit<SafeFindOptions<Tweet>, "where"> = {},
+    ): Promise<Tweet> {
+        const tweet = await this.get(id);
+        if (tweet.authorId !== userId) {
+            throw Errors.forbidden("You are not allowed to update this tweet. Only the author can update it.");
+        }
+
+        return super.update(id, updateData, options);
+    }
+
+    async deleteTweet(id: EntityId, userId: EntityId): Promise<SuccessResponse> {
+        const tweet = await this.get(id);
+        if (tweet.authorId !== userId) {
+            throw Errors.forbidden("You are not allowed to delete this tweet. Only the author can delete it.");
+        }
+
+        return super.delete(id);
+    }
+
+    deleteReply(id: EntityId, replyId: EntityId, userId: EntityId): Promise<SuccessResponse> {
+        return this.tweetReplyService.deleteReply({ where: { tweetId: id, id: replyId } }, userId);
     }
 }

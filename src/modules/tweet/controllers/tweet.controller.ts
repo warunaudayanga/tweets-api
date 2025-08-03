@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from "@nestjs/common";
 import { EntityId } from "@types";
 import { Endpoint } from "../../../core/enums";
 import { TweetService } from "../services";
@@ -12,12 +12,6 @@ import { AuthUser } from "../../auth/interfaces";
 @Controller(Endpoint.TWEET)
 export class TweetController {
     constructor(private readonly tweetService: TweetService) {}
-
-    @Post()
-    @UseGuards(JwtAuthGuard)
-    create(@CurrentUser() { id: authorId }: AuthUser, @Body() createTweetDto: CreateTweetDto): Promise<Tweet> {
-        return this.tweetService.create({ ...createTweetDto, authorId });
-    }
 
     @Get("user")
     @UseGuards(JwtAuthGuard)
@@ -43,21 +37,31 @@ export class TweetController {
         return this.tweetService.getMany({ where: { authorId } });
     }
 
-    @Patch(":id")
+    @Post()
     @UseGuards(JwtAuthGuard)
-    update(@Param("id") id: EntityId, @Body() updateTweetDto: UpdateTweetDto): Promise<Tweet> {
-        return this.tweetService.update(id, updateTweetDto);
+    create(@CurrentUser() { id: authorId }: AuthUser, @Body() createTweetDto: CreateTweetDto): Promise<Tweet> {
+        return this.tweetService.create({ ...createTweetDto, authorId });
+    }
+
+    @Put(":id")
+    @UseGuards(JwtAuthGuard)
+    update(
+        @Param("id") id: EntityId,
+        @CurrentUser() { id: userId }: AuthUser,
+        @Body() updateTweetDto: UpdateTweetDto,
+    ): Promise<Tweet> {
+        return this.tweetService.updateTweet(id, userId, updateTweetDto);
     }
 
     @Delete(":id")
     @UseGuards(JwtAuthGuard)
-    delete(@Param("id") id: EntityId): Promise<SuccessResponse> {
-        return this.tweetService.delete(id);
+    delete(@Param("id") id: EntityId, @CurrentUser() { id: userId }: AuthUser): Promise<SuccessResponse> {
+        return this.tweetService.deleteTweet(id, userId);
     }
 
     @Post(":id/like")
     @UseGuards(JwtAuthGuard)
-    toggleLike(@CurrentUser() { id: userId }: AuthUser, @Param("id") id: EntityId): Promise<TweetLike> {
+    toggleLike(@Param("id") id: EntityId, @CurrentUser() { id: userId }: AuthUser): Promise<TweetLike> {
         return this.tweetService.toggleLike(id, userId);
     }
 
@@ -78,7 +82,11 @@ export class TweetController {
     }
 
     @Delete(":id/replies/:replyId")
-    deleteReply(@Param("id") id: EntityId, @Param("replyId") replyId: EntityId): Promise<SuccessResponse> {
-        return this.tweetService.deleteReply(id, replyId);
+    deleteReply(
+        @Param("id") id: EntityId,
+        @Param("replyId") replyId: EntityId,
+        @CurrentUser() { id: userId }: AuthUser,
+    ): Promise<SuccessResponse> {
+        return this.tweetService.deleteReply(id, replyId, userId);
     }
 }

@@ -1,6 +1,6 @@
 export enum AuthEndpoint {
-    SIGN_UP = "sign-up",
-    SIGN_IN = "sign-in",
+    REGISTER = "register",
+    LOGIN = "login",
     ME = "me",
     REFRESH = "refresh",
     PASSWORD_CHANGE = "password/change",
@@ -9,5 +9,5 @@ export enum AuthEndpoint {
     PASSWORD_RESET = "password/reset",
     EMAIL_VERIFY = "email/verify",
     EMAIL_RESEND = "email/resend",
-    SIGN_OUT = "sign-out",
+    LOGOUT = "logout",
 }

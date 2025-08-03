@@ -23,12 +23,12 @@ import { AuthEndpoint } from "../enums/auth-endpoint.enum";
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
-    @Post(AuthEndpoint.SIGN_UP)
+    @Post(AuthEndpoint.REGISTER)
     signUp(@Body() dto: CreateUserDto): Promise<User> {
         return this.authService.signUp(dto);
     }
 
-    @Post(AuthEndpoint.SIGN_IN)
+    @Post(AuthEndpoint.LOGIN)
     @UseGuards(LocalAuthGuard)
     signIn(@CurrentUser() authUser: AuthUser, @Body() _dto: SignInDto): Promise<AuthResponse> {
         return this.authService.signIn(authUser);
@@ -79,7 +79,7 @@ export class AuthController {
         return this.authService.resendEmailVerification(dto);
     }
 
-    @Post(AuthEndpoint.SIGN_OUT)
+    @Post(AuthEndpoint.LOGOUT)
     @UseGuards(JwtAuthGuard)
     signOut(@CurrentUser() authUser: AuthUser): Promise<SuccessResponse> {
         return this.authService.signOut(authUser);
